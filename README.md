@@ -1,5 +1,7 @@
 # driveuse
 
+(forked from @texas-2036 / texas2036.org)
+
 `driveuse` is a Stata utility designed to simplify working with shared Google Drive folders across different operating systems. It acts as a wrapper for the standard `use` command but automatically resolves the local path to Google Drive, ensuring your do-files remain portable between macOS and Windows.
 
 ## Why use `driveuse`?
@@ -79,5 +81,5 @@ net install driveuse, from("https://raw.githubusercontent.com/ericabooth/driveus
 
 **Eric A. Booth**  
 Texas 2036  
-Email: [eric.a.booth@gmail.com](mailto:eric.a.booth@gmail.com)  
+Email: [eric.a.booth@gmail.com](mailto:eric.a.booth@gmail.com)  / eric.booth@texas2036.org
 GitHub: [ericabooth](https://www.github.com/ericabooth)
