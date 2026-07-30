@@ -72,14 +72,15 @@ do "${myproj}/scripts/clean_data.do"
 You can install `driveuse` directly from GitHub using the following Stata command:
 
 ```stata
-net install driveuse, from("https://raw.githubusercontent.com/ericabooth/driveuse-stata-public/main") replace
+net install driveuse, from("https://raw.githubusercontent.com/ericabooth/driveuse-stata-public/main/") replace force
+discard
+which driveuse
+help driveuse
 ```
-
-*(Note: Ensure the URL matches your actual GitHub repository structure.)*
 
 ## Author
 
 **Eric A. Booth**  
-Texas 2036  
-Email: [eric.a.booth@gmail.com](mailto:eric.a.booth@gmail.com)  / eric.booth@texas2036.org
-GitHub: [ericabooth](https://www.github.com/ericabooth)
+Sr Researcher, Texas 2036  
+Email: [eric.a.booth@gmail.com](mailto:eric.a.booth@gmail.com)  
+GitHub: [ericabooth](https://github.com/ericabooth)

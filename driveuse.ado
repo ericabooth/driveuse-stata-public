@@ -3,12 +3,19 @@ program define driveuse, rclass
     syntax [anything(everything)] [if] [in] [, CLEAR nolabel]
 
     * 1. Detect OS and set base paths
-    if "`c(os)'" == "MacOSX" {
+    * (Stata's console/batch build on macOS reports c(os) as "Unix", so
+    *  treat both the same and detect the actual Drive mount instead.)
+    if inlist("`c(os)'", "MacOSX", "Unix") {
         local home "/Users/`c(username)'"
         local gd_base "`home'/Library/CloudStorage"
         local folders : dir "`gd_base'" dirs "GoogleDrive-*"
         local folder  : word 1 of `folders'
         local folder  = subinstr(`"`folder'"', `"""', "", .)
+        if `"`folder'"' == "" {
+            di as error "driveuse: no Google Drive mount found under `gd_base'"
+            di as error "         (install Google Drive for Desktop and sign in)"
+            exit 601
+        }
         local sf_path "`gd_base'/`folder'/Shared drives/Data and Research Team"
     }
     else if "`c(os)'" == "Windows" {
