@@ -42,8 +42,44 @@ di as res "TEST 2 OK: path shape is the shared-drive mount for `c(os)'"
 
 *--- (3) a missing file fails loudly, not silently ----------------------------*
 capture noisily driveuse using "zz_no_such_file_zz.dta", clear
-assert _rc != 0
+assert _rc == 601
 di as res "TEST 3 OK: missing file errors (rc " _rc ")"
+
+*--- (3b-3f) loading options, through an absolute path ------------------------*
+* An absolute path is passed through untouched, so these tests exercise the
+* using / if / in / nolabel parsing without reading or writing the Drive.
+tempfile tdta
+clear
+set obs 10
+gen id = _n
+gen region = mod(_n, 3) + 1
+label define reg 1 "N" 2 "S" 3 "W"
+label values region reg
+save "`tdta'"
+clear
+
+driveuse using "`tdta'", clear
+assert _N == 10
+di as res "TEST 3b OK: driveuse using file (no varlist) loads the file"
+
+driveuse id region using "`tdta'" if region == 1, clear
+assert _N == 3 & c(k) == 2
+di as res "TEST 3c OK: varlist using file if exp"
+
+driveuse "`tdta'" in 2/4, clear
+assert _N == 3 & id[1] == 2
+di as res "TEST 3d OK: file in range"
+
+driveuse "`tdta'" if inlist(region, 1, 2) in 1/6, clear
+assert _N == 4
+di as res "TEST 3e OK: file if exp in range"
+
+driveuse "`tdta'", clear nolabel
+capture label list reg
+assert _rc != 0
+driveuse "`tdta'", clear
+label list reg
+di as res "TEST 3f OK: nolabel drops value labels; default keeps them"
 
 *--- (4) rerun is idempotent --------------------------------------------------*
 local before `"$driveuse"'

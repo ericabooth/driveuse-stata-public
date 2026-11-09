@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 1.0.0 21may2026 Author: Eric A. Booth}{...}
+{* *! version 1.0.1 09nov2026 Author: Eric A. Booth}{...}
 {vieweralsosee "use" "help use"}{...}
 {viewerjumpto "Syntax" "driveuse##syntax"}{...}
 {viewerjumpto "Description" "driveuse##description"}{...}
@@ -19,7 +19,13 @@ Help file for {hi:driveuse}
 {title:Syntax}
 
 {phang2}
-{cmd:driveuse} [{it:varlist}] [{cmd:using}] {it:filename} [{it:if}] [{it:in}] [{cmd:,} {it:options}]
+{cmd:driveuse} {it:filename} [{it:if}] [{it:in}] [{cmd:,} {it:options}]
+
+{phang2}
+{cmd:driveuse} [{it:varlist}] {cmd:using} {it:filename} [{it:if}] [{it:in}] [{cmd:,} {it:options}]
+
+{phang2}
+{cmd:driveuse}
 
 {synoptset 20 tabbed}{...}
 {synopthdr}
@@ -47,6 +53,14 @@ On Windows, it defaults to the {cmd:G:/Shared drives/Data and Research Team/} vi
 {break}  {bf:$sf} - (Short for "Source Files") An alias for the same path.
 
 {pstd}
+A relative {it:filename} is read from the shared-drive base folder. An absolute
+{it:filename} (starting with {cmd:/}, a drive letter, or {cmd:\\}) is used as
+given, and a leading {cmd:~} is expanded from {cmd:HOME} ({cmd:USERPROFILE} on
+Windows). On macOS the home folder comes from the {cmd:HOME} environment
+variable. The {it:if} and {it:in} qualifiers are passed to {help use}, so, as
+with {cmd:use}, the variables named in {it:if} must be among those loaded.
+
+{pstd}
 These globals can be used to construct paths for other Stata commands like {help save}, {help export}, or {help do}.
 
 
@@ -60,7 +74,10 @@ These globals can be used to construct paths for other Stata commands like {help
 {pmore}{cmd:. driveuse "ProjectA/data/raw_data.dta", clear}{p_end}
 
 {phang}3. Load specific variables with an if condition:{p_end}
-{pmore}{cmd:. driveuse id age using "survey.dta" if region == 1, clear}{p_end}
+{pmore}{cmd:. driveuse id age region using "survey.dta" if region == 1, clear}{p_end}
+
+{phang}3b. Load the first 100 observations, without value labels:{p_end}
+{pmore}{cmd:. driveuse using "survey.dta" in 1/100, clear nolabel}{p_end}
 
 {phang}4. Use the global shortcuts for other commands:{p_end}
 {pmore}{cmd:. driveuse "raw.dta", clear}{p_end}
@@ -80,6 +97,15 @@ These globals can be used to construct paths for other Stata commands like {help
 
 {phang}
 {opt nolabel} prevents the loading of value labels.
+
+
+{marker changes}{...}
+{title:Changes}
+
+{phang}1.0.1 (09nov2026): {it:if} and {it:in} now reach {cmd:use} instead of being
+read as part of the file name; {cmd:driveuse using} {it:filename} works;
+{opt nolabel} is honoured; the macOS home folder comes from {cmd:HOME}; a
+leading {cmd:~} is expanded.{p_end}
 
 
 {marker author}{...}

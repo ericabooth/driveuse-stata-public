@@ -14,10 +14,10 @@ Standard Stata commands like `use` or `sysuse` require you to provide a file pat
 
 ### Key Benefits
 - **Cross-Platform Compatibility:** Write one do-file that runs on both Mac and Windows without any `if/else` logic for paths.
-- **Dynamic Username Handling:** Automatically detects the macOS username using Stata's `c(username)`, eliminating hardcoded home directory paths.
+- **Dynamic Home Folder Handling:** Reads the macOS home folder from `HOME` (falling back to `/Users/` plus Stata's `c(username)`), eliminating hardcoded home directory paths. A leading `~` in a file name is expanded the same way.
 - **Persistent Global Shortcuts:** Automatically creates `$driveuse` and `$sf` (source files) globals. Once initialized, you can use these shortcuts in `save`, `import`, `export`, or `do` commands.
 - **Zero-Config Initialization:** Simply running `driveuse` with no arguments sets up your environment globals for the session.
-- **Full `use` Syntax Support:** Supports `varlist`, `using`, `if`, `in`, `clear`, and `nolabel`.
+- **Full `use` Syntax Support:** Supports `varlist`, `using`, `if`, `in`, `clear`, and `nolabel`. As with `use`, variables named in `if` must be among the variables loaded.
 
 ---
 
@@ -52,7 +52,8 @@ driveuse "marketing/campaign_stats.dta", clear
 
 ### 2. Loading Specific Variables with Conditions
 ```stata
-driveuse user_id timestamp using "logs/activity.dta" if year == 2024, clear
+driveuse user_id timestamp year using "logs/activity.dta" if year == 2024, clear
+driveuse using "logs/activity.dta" in 1/100, clear nolabel
 ```
 
 ### 3. Setting Up Base Folders
@@ -66,6 +67,10 @@ do "${myproj}/scripts/clean_data.do"
 ```
 
 ---
+
+## Changes
+
+- **1.0.1 (2026-11-09):** `if` and `in` now reach `use` instead of being read as part of the file name (they previously failed with r(601)); `driveuse using filename` works; `nolabel` is honoured; the macOS home folder comes from `HOME`; a leading `~` is expanded. The test battery now loads files through `using`, `if`, `in`, and `nolabel`.
 
 ## Installation
 
