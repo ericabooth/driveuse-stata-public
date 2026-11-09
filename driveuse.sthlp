@@ -1,9 +1,10 @@
 {smcl}
-{* *! version 1.0.1 09nov2026 Author: Eric A. Booth}{...}
+{* *! version 1.0.2 09nov2026 Author: Eric A. Booth}{...}
 {vieweralsosee "use" "help use"}{...}
 {viewerjumpto "Syntax" "driveuse##syntax"}{...}
 {viewerjumpto "Description" "driveuse##description"}{...}
 {viewerjumpto "Options" "driveuse##options"}{...}
+{viewerjumpto "Stored results" "driveuse##results"}{...}
 {viewerjumpto "Author" "driveuse##author"}{...}
 {hline}
 Help file for {hi:driveuse}
@@ -45,7 +46,12 @@ drive folder ({cmd:Shared drives/Data and Research Team/}) without hardcoding lo
 
 {pstd}
 On macOS, it searches for {cmd:Library/CloudStorage/GoogleDrive-*/Shared drives/Data and Research Team}.
-On Windows, it defaults to the {cmd:G:/Shared drives/Data and Research Team/} virtual drive.
+When several Google Drive accounts are mounted, it uses the first account (in
+sorted order) whose folder holds the shared drive. On Windows, it looks for
+{cmd:Shared drives/Data and Research Team} on drive {cmd:G:} first and then on
+every other drive letter. If no mount holds the shared drive, {cmd:driveuse}
+stops with an error that lists the accounts it found, even when called without
+arguments.
 
 {pstd}
 {cmd:driveuse} also creates two global macros that act as base folder shortcuts:
@@ -99,8 +105,25 @@ These globals can be used to construct paths for other Stata commands like {help
 {opt nolabel} prevents the loading of value labels.
 
 
+{marker results}{...}
+{title:Stored results}
+
+{pstd}
+{cmd:driveuse} stores the following in {cmd:r()}:
+
+{synoptset 15 tabbed}{...}
+{synopt:{cmd:r(path)}}the shared-drive base folder (the same as {bf:$sf}){p_end}
+{synopt:{cmd:r(file)}}the full path of the file loaded (not set by a bare call){p_end}
+
+
 {marker changes}{...}
 {title:Changes}
+
+{phang}1.0.2 (09nov2026): with several Google Drive accounts mounted,
+{cmd:driveuse} uses the one that holds the shared drive instead of the first
+{cmd:GoogleDrive-*} folder; Windows probes every drive letter, {cmd:G:} first;
+a missing shared drive is an error even on a bare call; {cmd:r(path)} and
+{cmd:r(file)} are returned.{p_end}
 
 {phang}1.0.1 (09nov2026): {it:if} and {it:in} now reach {cmd:use} instead of being
 read as part of the file name; {cmd:driveuse using} {it:filename} works;

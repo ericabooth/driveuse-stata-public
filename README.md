@@ -10,7 +10,7 @@ Standard Stata commands like `use` or `sysuse` require you to provide a file pat
 1. **MacOS** uses paths like `/Users/username/Library/CloudStorage/GoogleDrive-email@domain.com/Shared drives/...`
 2. **Windows** typically mounts Google Drive as a virtual drive letter like `G:/Shared drives/...`
 
-`driveuse` solves this by dynamically detecting the correct base path.
+`driveuse` solves this by dynamically detecting the correct base path. On macOS, when several Google Drive accounts are mounted, it uses the first account whose folder actually holds the shared drive. On Windows it checks `G:` first and then every other drive letter. If no mount holds the shared drive, `driveuse` stops with an error that lists the accounts it found.
 
 ### Key Benefits
 - **Cross-Platform Compatibility:** Write one do-file that runs on both Mac and Windows without any `if/else` logic for paths.
@@ -18,6 +18,7 @@ Standard Stata commands like `use` or `sysuse` require you to provide a file pat
 - **Persistent Global Shortcuts:** Automatically creates `$driveuse` and `$sf` (source files) globals. Once initialized, you can use these shortcuts in `save`, `import`, `export`, or `do` commands.
 - **Zero-Config Initialization:** Simply running `driveuse` with no arguments sets up your environment globals for the session.
 - **Full `use` Syntax Support:** Supports `varlist`, `using`, `if`, `in`, `clear`, and `nolabel`. As with `use`, variables named in `if` must be among the variables loaded.
+- **Stored Results:** `r(path)` holds the shared-drive base folder, and `r(file)` holds the full path of the file loaded.
 
 ---
 
@@ -70,6 +71,7 @@ do "${myproj}/scripts/clean_data.do"
 
 ## Changes
 
+- **1.0.2 (2026-11-09):** With several Google Drive accounts mounted, `driveuse` uses the one that holds the shared drive (it used to take the first `GoogleDrive-*` folder and set `$sf` to a path that did not exist). Windows probes every drive letter, `G:` first. A missing shared drive is an error even on a bare call. Returns `r(path)` and `r(file)`.
 - **1.0.1 (2026-11-09):** `if` and `in` now reach `use` instead of being read as part of the file name (they previously failed with r(601)); `driveuse using filename` works; `nolabel` is honoured; the macOS home folder comes from `HOME`; a leading `~` is expanded. The test battery now loads files through `using`, `if`, `in`, and `nolabel`.
 
 ## Installation

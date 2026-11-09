@@ -1,4 +1,4 @@
-*! driveuse 1.0.1  Eric Booth  09nov2026
+*! driveuse 1.0.2  Eric Booth  09nov2026
 *! use a dataset from the team Google Drive shared drive, on macOS or Windows
 *!
 *! Syntax:
@@ -7,6 +7,13 @@
 *!   driveuse                          (only sets $driveuse and $sf)
 *!
 *! Changes:
+*!   1.0.2  09nov2026  with several Google Drive accounts mounted, use the
+*!                     one that holds the shared drive (it used to take the
+*!                     first GoogleDrive-* folder and set $sf to a path that
+*!                     did not exist); Windows probes every drive letter
+*!                     (G: first) instead of assuming G:; a missing shared
+*!                     drive is an error even on a bare call; returns
+*!                     r(path) (and r(file) after a load).
 *!   1.0.1  09nov2026  if/in are passed to -use- instead of being glued onto
 *!                     the file name; "driveuse using file" works; nolabel is
 *!                     honoured; macOS home comes from HOME; a leading ~ in
@@ -20,28 +27,65 @@ program define driveuse, rclass
     * 1. Detect OS and set base paths
     * (Stata's console/batch build on macOS reports c(os) as "Unix", so
     *  treat both the same and detect the actual Drive mount instead.)
+    local team "Shared drives/Data and Research Team"
     if inlist("`c(os)'", "MacOSX", "Unix") {
         local home : env HOME
         if `"`home'"' == "" local home "/Users/`c(username)'"
         local gd_base "`home'/Library/CloudStorage"
         mata: st_local("gdok", strofreal(direxists(st_local("gd_base"))))
-        local folder ""
+        local folders ""
         if `gdok' {
             local folders : dir "`gd_base'" dirs "GoogleDrive-*"
-            local folder  : word 1 of `folders'
-            local folder  = subinstr(`"`folder'"', `"""', "", .)
+            local folders : list sort folders
         }
-        if `"`folder'"' == "" {
+        if `"`folders'"' == "" {
             di as error "driveuse: no Google Drive mount found under `gd_base'"
             di as error "         (install Google Drive for Desktop and sign in)"
             exit 601
         }
-        local sf_path "`gd_base'/`folder'/Shared drives/Data and Research Team"
+        * Several accounts can be mounted side by side.  Use the first one
+        * (in sorted order) that actually holds the team shared drive.
+        local sf_path ""
+        foreach f of local folders {
+            local cand "`gd_base'/`f'/`team'"
+            mata: st_local("ok", strofreal(direxists(st_local("cand"))))
+            if `ok' {
+                local sf_path "`cand'"
+                continue, break
+            }
+        }
+        if `"`sf_path'"' == "" {
+            di as error "driveuse: none of the Google Drive accounts under `gd_base'"
+            di as error "         holds {bf:`team'}.  Accounts found:"
+            foreach f of local folders {
+                di as error "           `f'"
+            }
+            exit 601
+        }
     }
     else if "`c(os)'" == "Windows" {
-        * Google Drive for Desktop mounts as a virtual drive, default G:
+        * Google Drive for Desktop mounts as a virtual drive, default G:.
+        * Probe G: first, then every other letter.
         local home : env USERPROFILE
-        local sf_path "G:/Shared drives/Data and Research Team"
+        if `"`home'"' == "" {
+            local hd : env HOMEDRIVE
+            local hp : env HOMEPATH
+            local home `"`hd'`hp'"'
+        }
+        local sf_path ""
+        foreach L in G D E F H I J K L M N O P Q R S T U V W X Y Z {
+            local cand "`L':/`team'"
+            mata: st_local("ok", strofreal(direxists(st_local("cand"))))
+            if `ok' {
+                local sf_path "`cand'"
+                continue, break
+            }
+        }
+        if `"`sf_path'"' == "" {
+            di as error "driveuse: no drive letter holds {bf:`team'}"
+            di as error "         (is Google Drive for Desktop running and signed in?)"
+            exit 601
+        }
     }
     else {
         di as error "driveuse: unsupported operating system (`c(os)')"
@@ -56,6 +100,7 @@ program define driveuse, rclass
     if `"`macval(anything)'"' == "" {
         di as text "driveuse: globals {bf:\$driveuse} and {bf:\$sf} set to:"
         di as result `"`sf_path'"'
+        return local path `"`sf_path'"'
         exit
     }
 
@@ -128,4 +173,6 @@ program define driveuse, rclass
     }
 
     describe, short
+    return local file `"`macval(fullpath)'"'
+    return local path `"`sf_path'"'
 end

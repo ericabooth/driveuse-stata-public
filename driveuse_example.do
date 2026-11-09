@@ -1,31 +1,9 @@
+* driveuse_example.do -- typical calls (the file names are placeholders;
+* point them at files that exist on your shared drive before running).
 
-**Google drive use
-if "`c(os)'" == "MacOSX" {
-    local home "/Users/`c(username)'"
-    local gd_base "`home'/Library/CloudStorage"
-
-    local gd_folders : dir "`gd_base'" dirs "GoogleDrive-*"
-    local gd_folder  : word 1 of `gd_folders'
-    local gd_folder  = subinstr(`"`gd_folder'"', `"""', "", .)
-
-    local sf "`gd_base'/`gd_folder'/Shared drives/Data and Research Team"
-}
-else if "`c(os)'" == "Windows" {
-    * Google Drive for Desktop mounts as a virtual drive, default is G:
-    * Adjust the drive letter below if yours differs
-    local sf "G:/Shared drives/Data and Research Team"
-}
-global driveuse `"`sf'"'
-global sf `sf'
-
-s
-
-**
-use `"${sf}/test.dta"', clear
-use `"${driveuse}/_datarepository/test.dta"', clear
-**
-
-
+* Set $driveuse and $sf only
+driveuse
+display "`r(path)'"
 
 * Basic load
 driveuse "test.dta", clear
@@ -37,5 +15,9 @@ driveuse "project/data/survey.dta", clear
 * Load specific variables only
 driveuse id age income using "survey.dta", clear
 
-* With if condition
-driveuse "survey.dta" if year == 2024, clear
+* With if condition and without value labels
+driveuse "survey.dta" if year == 2024, clear nolabel
+
+* The globals work with any command
+use `"${sf}/test.dta"', clear
+use `"${driveuse}/_datarepository/test.dta"', clear
