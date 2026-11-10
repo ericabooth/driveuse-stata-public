@@ -1,5 +1,19 @@
 # driveuse
 
+> **This repository is retired.** `driveuse` is now maintained at
+> [texas-2036/driveuse-stata-public](https://github.com/texas-2036/driveuse-stata-public),
+> which has version 2 of the Stata command, an R version that follows the same
+> rules, and a shared test suite. Install from there:
+>
+> ```stata
+> net install driveuse, from("https://raw.githubusercontent.com/texas-2036/driveuse-stata-public/main/") replace force
+> ```
+>
+> Version 2 differs from the 1.0.2 code kept here in two ways that can affect
+> existing do-files. On a Mac it uses only a Google Drive account folder that
+> ends in `@texas2036.org`, and it does not expand a leading `~` in a file
+> name. The rest of this page describes 1.0.2 and is kept for reference.
+
 (forked from @texas-2036 / texas2036.org)
 
 `driveuse` is a Stata utility designed to simplify working with shared Google Drive folders across different operating systems. It acts as a wrapper for the standard `use` command but automatically resolves the local path to Google Drive, ensuring your do-files remain portable between macOS and Windows.
